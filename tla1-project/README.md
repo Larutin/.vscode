@@ -1,16 +1,56 @@
-# React + Vite
+# Enterprise Income Tracker
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A React-based web application for managing and displaying income categories.
 
-Currently, two official plugins are available:
+## Project Description
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+The Enterprise Income Tracker was originally created using HTML, CSS, JavaScript, and Bootstrap. The project was converted into a React application and redesigned with a modern purple-themed interface.
 
-## React Compiler
+The application allows the user to:
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+- Add an income category
+- Enter a category description
+- Display registered categories
+- Delete categories
+- View the total number of categories
+- View the number of active records
+- Display an empty state when no categories exist
+- Use the application on smaller screen sizes
 
-## Expanding the ESLint configuration
+---
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+# AI Assistance and Development
+
+AI was used as a development assistant during the conversion, redesign, and explanation of this project.
+
+AI assistance was used for:
+
+### 1. Converting the Original JavaScript to React
+
+The original application used direct DOM manipulation to get input values and create table rows.
+
+The React version was changed to use:
+
+- React components
+- `useState`
+- Event handlers
+- JSX
+- Conditional rendering
+- Array methods such as `map()` and `filter()`
+
+Instead of manually changing the HTML using JavaScript, React now manages the interface based on the application's state.
+
+### 2. Creating React State
+
+AI helped explain and implement state variables for:
+
+- Category name
+- Category description
+- The list of categories
+
+The project uses:
+
+```jsx
+const [categoryName, setCategoryName] = useState("");
+const [categoryDesc, setCategoryDesc] = useState("");
+const [categories, setCategories] = useState([]);
