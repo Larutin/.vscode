@@ -5,6 +5,8 @@ function App() {
   const [categoryName, setCategoryName] = useState("");
   const [categoryDesc, setCategoryDesc] = useState("");
   const [categories, setCategories] = useState([]);
+  const [search, setSearch] = useState("");
+  const [editingId, setEditingId] = useState(null);
 
   function handleAddCategory() {
     if (!categoryName.trim() || !categoryDesc.trim()) {
@@ -12,44 +14,107 @@ function App() {
       return;
     }
 
-    setCategories([
-      ...categories,
-      {
-        id: Date.now(),
-        name: categoryName,
-        description: categoryDesc
-      }
-    ]);
+    const duplicate = categories.some(
+      (category) =>
+        category.name.toLowerCase() === categoryName.trim().toLowerCase() &&
+        category.id !== editingId
+    );
+
+    if (duplicate) {
+      alert("A category with this name already exists.");
+      return;
+    }
+
+    if (editingId !== null) {
+      setCategories(
+        categories.map((category) =>
+          category.id === editingId
+            ? {
+                ...category,
+                name: categoryName.trim(),
+                description: categoryDesc.trim()
+              }
+            : category
+        )
+      );
+
+      setEditingId(null);
+    } else {
+      setCategories([
+        ...categories,
+        {
+          id: Date.now(),
+          name: categoryName.trim(),
+          description: categoryDesc.trim(),
+          date: new Date().toLocaleDateString()
+        }
+      ]);
+    }
 
     setCategoryName("");
     setCategoryDesc("");
   }
 
-  function handleDelete(id) {
-    setCategories(
-      categories.filter((category) => category.id !== id)
-    );
+  function handleSubmit(event) {
+    event.preventDefault();
+    handleAddCategory();
   }
+
+  function handleEdit(category) {
+    setCategoryName(category.name);
+    setCategoryDesc(category.description);
+    setEditingId(category.id);
+  }
+
+  function handleDelete(id) {
+    const confirmed = window.confirm(
+      "Are you sure you want to delete this category?"
+    );
+
+    if (confirmed) {
+      setCategories(
+        categories.filter((category) => category.id !== id)
+      );
+    }
+  }
+
+  function handleCancelEdit() {
+    setCategoryName("");
+    setCategoryDesc("");
+    setEditingId(null);
+  }
+
+  const filteredCategories = categories.filter((category) =>
+    category.name.toLowerCase().includes(search.toLowerCase()) ||
+    category.description.toLowerCase().includes(search.toLowerCase())
+  );
 
   return (
     <div className="app">
 
       <header className="header">
-        <div>
-          <p className="subtitle">ENTERPRISE MANAGEMENT</p>
-          <h1>Income Tracker</h1>
-          <p>Manage your income categories with ease.</p>
+
+        <div className="brand">
+          <div className="brand-icon">₱</div>
+
+          <div>
+            <p className="subtitle">ENTERPRISE MANAGEMENT</p>
+            <h1>Income Tracker</h1>
+            <p>Manage your income categories with ease.</p>
+          </div>
         </div>
 
         <div className="status">
-          ● System Active
+          <span>●</span> System Active
         </div>
+
       </header>
 
       <div className="stats">
 
         <div className="stat">
-          <span>📁</span>
+          <div className="stat-icon">▦</div>
+
           <div>
             <small>Total Categories</small>
             <h2>{categories.length}</h2>
@@ -57,7 +122,8 @@ function App() {
         </div>
 
         <div className="stat">
-          <span>✓</span>
+          <div className="stat-icon">✓</div>
+
           <div>
             <small>Active Records</small>
             <h2>{categories.length}</h2>
@@ -65,7 +131,8 @@ function App() {
         </div>
 
         <div className="stat">
-          <span>＋</span>
+          <div className="stat-icon">＋</div>
+
           <div>
             <small>System Status</small>
             <h2>Active</h2>
@@ -78,49 +145,110 @@ function App() {
 
         <section className="form-card">
 
-          <p className="label">REGISTRATION</p>
-          <h2>Add Income Category</h2>
+          <p className="label">
+            {editingId !== null ? "UPDATE RECORD" : "REGISTRATION"}
+          </p>
 
-          <label>Category Name</label>
+          <h2>
+            {editingId !== null
+              ? "Edit Income Category"
+              : "Add Income Category"}
+          </h2>
 
-          <input
-            type="text"
-            placeholder="e.g. Consulting"
-            value={categoryName}
-            onChange={(e) => setCategoryName(e.target.value)}
-          />
+          <form onSubmit={handleSubmit}>
 
-          <label>Description</label>
+            <label>Category Name</label>
 
-          <input
-            type="text"
-            placeholder="e.g. Technical support contract"
-            value={categoryDesc}
-            onChange={(e) => setCategoryDesc(e.target.value)}
-          />
+            <input
+              type="text"
+              placeholder="e.g. Consulting"
+              value={categoryName}
+              onChange={(event) =>
+                setCategoryName(event.target.value)
+              }
+            />
 
-          <button onClick={handleAddCategory}>
-            + Save Category
-          </button>
+            <label>Description</label>
+
+            <input
+              type="text"
+              placeholder="e.g. Technical support contract"
+              value={categoryDesc}
+              onChange={(event) =>
+                setCategoryDesc(event.target.value)
+              }
+            />
+
+            <button type="submit" className="save-button">
+              {editingId !== null
+                ? "✓ Update Category"
+                : "+ Save Category"}
+            </button>
+
+            {editingId !== null && (
+              <button
+                type="button"
+                className="cancel-button"
+                onClick={handleCancelEdit}
+              >
+                Cancel Edit
+              </button>
+            )}
+
+          </form>
+
+          <div className="form-tip">
+            <span>💡</span>
+            <p>
+              Category names must be unique. Press Enter to save.
+            </p>
+          </div>
 
         </section>
 
         <section className="categories-card">
 
           <div className="categories-header">
+
             <div>
               <p className="label">DATABASE</p>
               <h2>Registered Categories</h2>
             </div>
 
-            <span>{categories.length} Records</span>
+            <span>
+              {categories.length}{" "}
+              {categories.length === 1 ? "Record" : "Records"}
+            </span>
+
+          </div>
+
+          <div className="search-box">
+
+            <span>⌕</span>
+
+            <input
+              type="text"
+              placeholder="Search categories..."
+              value={search}
+              onChange={(event) => setSearch(event.target.value)}
+            />
+
+            {search && (
+              <button
+                className="clear-search"
+                onClick={() => setSearch("")}
+              >
+                ×
+              </button>
+            )}
+
           </div>
 
           {categories.length === 0 ? (
 
             <div className="empty">
 
-              <div className="empty-icon">+</div>
+              <div className="empty-icon">＋</div>
 
               <h3>No categories yet</h3>
 
@@ -130,11 +258,25 @@ function App() {
 
             </div>
 
+          ) : filteredCategories.length === 0 ? (
+
+            <div className="empty search-empty">
+
+              <div className="empty-icon">⌕</div>
+
+              <h3>No results found</h3>
+
+              <p>
+                Try searching for a different category or description.
+              </p>
+
+            </div>
+
           ) : (
 
             <div className="category-list">
 
-              {categories.map((category) => (
+              {filteredCategories.map((category) => (
 
                 <div className="category" key={category.id}>
 
@@ -143,16 +285,34 @@ function App() {
                   </div>
 
                   <div className="category-info">
+
                     <h3>{category.name}</h3>
+
                     <p>{category.description}</p>
+
+                    <small>
+                      Added {category.date}
+                    </small>
+
                   </div>
 
-                  <button
-                    className="delete"
-                    onClick={() => handleDelete(category.id)}
-                  >
-                    Delete
-                  </button>
+                  <div className="category-actions">
+
+                    <button
+                      className="edit"
+                      onClick={() => handleEdit(category)}
+                    >
+                      Edit
+                    </button>
+
+                    <button
+                      className="delete"
+                      onClick={() => handleDelete(category.id)}
+                    >
+                      Delete
+                    </button>
+
+                  </div>
 
                 </div>
 
@@ -168,6 +328,8 @@ function App() {
 
       <footer>
         Enterprise Income Tracker
+        <span>•</span>
+        React Management System
       </footer>
 
     </div>
